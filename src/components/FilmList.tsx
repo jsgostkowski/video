@@ -10,7 +10,14 @@ export const FilmList = () => {
   const [error, setError] = useState<string | null>(null);
 
   const loadMoreFilms = () => {
-    setLimit((prev) => prev + 10);
+    try {
+      setLimit((prev) => prev + 10);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+    }
+
     // setPage((prev) => prev + 1);
   };
 
@@ -19,7 +26,6 @@ export const FilmList = () => {
       const films = await fetchMediaList(limit, page);
       setFilms(films);
       console.log(films);
-      toast.success("Success");
     } catch (err) {
       console.log(err);
       if (err instanceof Error) {
@@ -29,24 +35,25 @@ export const FilmList = () => {
     }
   };
   useEffect(() => {
-    getFilmFromData();
+    try {
+      getFilmFromData();
+      toast.success("Success in useEffect");
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      }
+    }
   }, [limit]);
 
-  if (error) {
-    return (
-      <div>
-        {" "}
-        <ToastContainer theme="light" />
-      </div>
-    );
-  }
   return (
     <div>
       {films.map((film) => {
         return (
           <div key={film.id}>
             <div>
-              <h1>{film.title}</h1>
+              <h1>
+                {film.title}, {film.id}
+              </h1>
               <p>{film.actors}</p>
               <p>{film.director}</p>
             </div>
